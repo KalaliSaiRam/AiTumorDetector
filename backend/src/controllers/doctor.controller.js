@@ -19,6 +19,7 @@ const getMyPatients = asyncHandler(async (req, res) => {
       OR: [
         { reports: { some: { doctorId } } },
         { appointments: { some: { doctorId } } },
+        { createdById: doctorId },
       ],
     },
     include: {
@@ -99,4 +100,51 @@ const getMyReports = asyncHandler(async (req, res) => {
   return res.status(200).json(apiResponse.success(reports));
 });
 
-module.exports = { getMyPatients, createDiagnosis, getMyReports };
+/**
+ * GET /api/doctor/dashboard
+ * Aggregates tumor prediction statistics from all patients assigned to this doctor.
+ */
+const getDashboardStats = asyncHandler(async (req, res) => {
+  const doctorId = req.user.id;
+
+  // Find all patients for this doctor
+  const patients = await prisma.patient.findMany({
+    where: {
+      OR: [
+        { reports: { some: { doctorId } } },
+        { appointments: { some: { doctorId } } },
+        { createdById: doctorId },
+      ],
+    },
+    include: {
+      scans: {
+        orderBy: { uploadedAt: 'desc' },
+        take: 1,
+        include: { prediction: true },
+      },
+    },
+  });
+
+  let analyzed = 0, pituitary = 0, glioma = 0, meningioma = 0, clean = 0;
+
+  patients.forEach((p) => {
+    if (p.scans && p.scans.length > 0 && p.scans[0].prediction) {
+      analyzed++;
+      const type = p.scans[0].prediction.predictedClass.toLowerCase();
+      if (type.includes('pituitary')) pituitary++;
+      else if (type.includes('glioma')) glioma++;
+      else if (type.includes('meningioma')) meningioma++;
+      else clean++; // Catch-all for "notumor", "no_tumor", "normal"
+    }
+  });
+
+  return res.status(200).json(
+    apiResponse.success({
+      total: patients.length,
+      analyzed,
+      distribution: { pituitary, glioma, meningioma, clean },
+    }, 'Doctor analytics retrieved.')
+  );
+});
+
+module.exports = { getMyPatients, createDiagnosis, getMyReports, getDashboardStats };

@@ -7,6 +7,7 @@ import Layout from './components/Layout';
 import Login from './pages/Login';
 import AdminDashboard from './pages/AdminDashboard';
 import DoctorDashboard from './pages/DoctorDashboard';
+import DoctorAnalytics from './pages/DoctorAnalytics';
 import ReceptionistDashboard from './pages/ReceptionistDashboard';
 import UploadScan from './pages/UploadScan';
 import ManageStaff from './pages/ManageStaff';
@@ -28,7 +29,8 @@ function App() {
 
         {/* DOCTOR ROUTES */}
         <Route element={<ProtectedRoute allowedRoles={['DOCTOR']} />}>
-          <Route path="/doctor" element={<DoctorDashboard />} />
+          <Route path="/doctor" element={<DoctorAnalytics />} />
+          <Route path="/doctor/patients" element={<DoctorDashboard />} />
           <Route path="/patients/:id" element={<PatientDetails />} />
         </Route>
 

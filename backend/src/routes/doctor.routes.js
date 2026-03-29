@@ -1,6 +1,6 @@
 const express = require('express');
 const { body } = require('express-validator');
-const { getMyPatients, createDiagnosis, getMyReports } = require('../controllers/doctor.controller');
+const { getMyPatients, createDiagnosis, getMyReports, getDashboardStats } = require('../controllers/doctor.controller');
 const { authenticate } = require('../middleware/auth');
 const { requireRole } = require('../middleware/roleCheck');
 
@@ -14,6 +14,9 @@ const diagnosisValidation = [
   body('diagnosis').trim().notEmpty().withMessage('Diagnosis text is required.'),
   body('aiSummary').optional().isString(),
 ];
+
+// GET /api/doctor/dashboard
+router.get('/dashboard', getDashboardStats);
 
 // GET /api/doctor/patients
 router.get('/patients', getMyPatients);

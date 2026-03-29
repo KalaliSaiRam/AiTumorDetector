@@ -82,11 +82,11 @@ export default function ReceptionistDashboard() {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto flex flex-col gap-6 h-full overflow-hidden">
-      <div className="flex items-center justify-between">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto flex flex-col gap-4 md:gap-6 h-full overflow-hidden w-full">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">Front Desk Operations</h1>
-          <p className="text-slate-400">Manage patient intake, scheduling, and hospital logistics</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-white mb-1 md:mb-2">Front Desk Operations</h1>
+          <p className="text-sm md:text-base text-slate-400">Manage patient intake, scheduling, and hospital logistics</p>
         </div>
       </div>
 
@@ -97,17 +97,17 @@ export default function ReceptionistDashboard() {
       )}
 
       {/* TABS */}
-      <div className="flex gap-2 border-b border-white/10 pb-4">
-        <button onClick={() => setActiveTab('dashboard')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'dashboard' ? 'bg-primary-500/20 text-primary-400 border border-primary-500/30' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+      <div className="flex overflow-x-auto gap-2 border-b border-white/10 pb-3 md:pb-4 hide-scrollbar select-none snap-x">
+        <button onClick={() => setActiveTab('dashboard')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all shrink-0 snap-start ${activeTab === 'dashboard' ? 'bg-primary-500/20 text-primary-400 border border-primary-500/30' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
           Overview Dashboard
         </button>
-        <button onClick={() => setActiveTab('register')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'register' ? 'bg-primary-500/20 text-primary-400 border border-primary-500/30' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+        <button onClick={() => setActiveTab('register')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all shrink-0 snap-start ${activeTab === 'register' ? 'bg-primary-500/20 text-primary-400 border border-primary-500/30' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
           Register Patient
         </button>
-        <button onClick={() => setActiveTab('schedule')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'schedule' ? 'bg-primary-500/20 text-primary-400 border border-primary-500/30' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+        <button onClick={() => setActiveTab('schedule')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all shrink-0 snap-start ${activeTab === 'schedule' ? 'bg-primary-500/20 text-primary-400 border border-primary-500/30' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
           Schedule Appointment
         </button>
-        <button onClick={() => setActiveTab('list')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === 'list' ? 'bg-primary-500/20 text-primary-400 border border-primary-500/30' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
+        <button onClick={() => setActiveTab('list')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all shrink-0 snap-start ${activeTab === 'list' ? 'bg-primary-500/20 text-primary-400 border border-primary-500/30' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}>
           Patient Archive
         </button>
       </div>
@@ -138,10 +138,10 @@ export default function ReceptionistDashboard() {
 
       {/* REGISTER TAB */}
       {activeTab === 'register' && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-panel p-8 max-w-2xl">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-panel p-5 md:p-8 max-w-2xl overflow-y-auto">
           <h2 className="text-xl font-semibold text-white mb-6">New Patient Intake</h2>
           <form onSubmit={handleRegister} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <label className="text-sm font-medium text-slate-300">Full Name</label>
                 <input type="text" required value={regForm.name} onChange={e => setRegForm({...regForm, name: e.target.value})} className="w-full glass-input" placeholder="Jane Doe" />
@@ -151,7 +151,7 @@ export default function ReceptionistDashboard() {
                 <input type="number" required min="0" value={regForm.age} onChange={e => setRegForm({...regForm, age: e.target.value})} className="w-full glass-input" placeholder="45" />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <label className="text-sm font-medium text-slate-300">Gender</label>
                 <select value={regForm.gender} onChange={e => setRegForm({...regForm, gender: e.target.value})} className="w-full glass-input appearance-none bg-slate-900 border-white/10 text-slate-300">
@@ -182,7 +182,7 @@ export default function ReceptionistDashboard() {
 
       {/* SCHEDULE TAB */}
       {activeTab === 'schedule' && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-panel p-8 max-w-2xl">
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-panel p-5 md:p-8 max-w-2xl overflow-y-auto">
           <h2 className="text-xl font-semibold text-white mb-6 flex items-center gap-2"><Calendar className="text-primary-400" /> Schedule Specialist Appointment</h2>
           <form onSubmit={handleAppointment} className="space-y-4">
             <div className="space-y-1">
@@ -211,34 +211,38 @@ export default function ReceptionistDashboard() {
 
       {/* PATIENT LIST TAB */}
       {activeTab === 'list' && (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-panel p-6 flex-1 overflow-auto">
-          <h2 className="text-xl font-semibold text-white mb-6">Full Patient Hospital Directory</h2>
-          {loading ? (
-            <div className="p-12 flex justify-center"><div className="w-8 h-8 border-4 border-primary-500/30 border-t-primary-500 rounded-full animate-spin"></div></div>
-          ) : (
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-white/10 text-slate-400 text-sm">
-                  <th className="py-3 px-4 font-medium">Patient Name</th>
-                  <th className="py-3 px-4 font-medium">Age & Gender</th>
-                  <th className="py-3 px-4 font-medium">Contact</th>
-                  <th className="py-3 px-4 font-medium">Registration Date</th>
-                  <th className="py-3 px-4 font-medium">AI Scans</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {patients.map(p => (
-                  <tr key={p.id} className="hover:bg-white/5 transition-colors">
-                    <td className="py-4 px-4 text-white font-medium">{p.name}</td>
-                    <td className="py-4 px-4 text-slate-300 text-sm">{p.age} yrs • <span className="capitalize">{p.gender.toLowerCase()}</span></td>
-                    <td className="py-4 px-4 text-primary-400 text-sm">{p.contact}</td>
-                    <td className="py-4 px-4 text-slate-400 text-sm">{new Date(p.createdAt).toLocaleDateString()}</td>
-                    <td className="py-4 px-4 text-slate-400 text-sm">{p._count?.scans || 0}</td>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-panel flex flex-col flex-1 overflow-hidden">
+          <div className="p-5 md:p-6 pb-2 border-b border-white/5 shrink-0">
+            <h2 className="text-xl font-semibold text-white mb-2 md:mb-4">Full Patient Hospital Directory</h2>
+          </div>
+          <div className="overflow-auto flex-1 p-0 w-full relative">
+            {loading ? (
+              <div className="p-12 flex justify-center"><div className="w-8 h-8 border-4 border-primary-500/30 border-t-primary-500 rounded-full animate-spin"></div></div>
+            ) : (
+              <table className="w-full text-left border-collapse whitespace-nowrap">
+                <thead className="sticky top-0 bg-[#06090e] z-10">
+                  <tr className="border-b border-white/10 text-slate-400 text-sm">
+                    <th className="py-3 px-4 font-medium">Patient Name</th>
+                    <th className="py-3 px-4 font-medium">Age & Gender</th>
+                    <th className="py-3 px-4 font-medium">Contact</th>
+                    <th className="py-3 px-4 font-medium">Registration Date</th>
+                    <th className="py-3 px-4 font-medium md:text-right">AI Scans</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {patients.map(p => (
+                    <tr key={p.id} className="hover:bg-white/5 transition-colors">
+                      <td className="py-4 px-4 text-white font-medium">{p.name}</td>
+                      <td className="py-4 px-4 text-slate-300 text-sm">{p.age} yrs • <span className="capitalize">{p.gender.toLowerCase()}</span></td>
+                      <td className="py-4 px-4 text-primary-400 text-sm">{p.contact}</td>
+                      <td className="py-4 px-4 text-slate-400 text-sm">{new Date(p.createdAt).toLocaleDateString()}</td>
+                      <td className="py-4 px-4 text-slate-400 text-sm md:text-right font-mono">{p._count?.scans || 0}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
         </motion.div>
       )}
     </div>
