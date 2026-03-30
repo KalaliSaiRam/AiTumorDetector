@@ -12,7 +12,7 @@ class GradCAM:
         target_layer = self.model.cnn.model.layer4
 
         target_layer.register_forward_hook(self.forward_hook)
-        target_layer.register_backward_hook(self.backward_hook)
+        target_layer.register_full_backward_hook(self.backward_hook)
 
     def forward_hook(self, module, input, output):
         self.activations = output
@@ -32,12 +32,10 @@ class GradCAM:
         activations = self.activations[0]
 
         weights = torch.mean(gradients, dim=(1, 2))
-
-        cam = torch.zeros(activations.shape[1:], dtype=torch.float32)
-
-        for i, w in enumerate(weights):
-            cam += w * activations[i]
-
+        
+        # Vectorized weighted sum over channels
+        cam = torch.sum(weights.view(-1, 1, 1) * activations, dim=0)
+        
         cam = torch.relu(cam)
         cam = cam.detach().cpu().numpy()
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import api from '../api/axiosInstance';
-import { UploadCloud, Image as ImageIcon, Activity, Eye, EyeOff, BrainCircuit, CheckCircle2 } from 'lucide-react';
+import { UploadCloud, Image as ImageIcon, Activity, Eye, EyeOff, BrainCircuit, CheckCircle2, AlertCircle, Columns } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function UploadScan() {
@@ -19,7 +19,7 @@ export default function UploadScan() {
   const [predicting, setPredicting] = useState(false);
   const [prediction, setPrediction] = useState(null);
 
-  const [showHeatmap, setShowHeatmap] = useState(true);
+  const [viewMode, setViewMode] = useState('heatmap'); // 'heatmap', 'baseline', 'compare'
 
   // Fetch patients to populate dropdown
   useEffect(() => {
@@ -121,12 +121,13 @@ export default function UploadScan() {
         <p className="text-slate-400 mt-2 text-sm md:text-lg">Deposit raw MRI data into the central vault for Neural TriModel neuro-analysis.</p>
       </motion.div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 md:gap-8 items-start w-full">
+      <div className={`grid grid-cols-1 gap-6 md:gap-8 items-start w-full ${prediction ? '' : 'xl:grid-cols-2'}`}>
         {/* Upload Panel */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
-          className="glass-panel p-4 md:p-8 border border-white/10 rounded-2xl md:rounded-3xl shadow-2xl backdrop-blur-xl flex flex-col min-h-[400px] md:min-h-[500px]"
-        >
+        {!prediction && (
+          <motion.div
+            initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
+            className="glass-panel p-4 md:p-8 border border-white/10 rounded-2xl md:rounded-3xl shadow-2xl backdrop-blur-xl flex flex-col min-h-[400px] md:min-h-[500px]"
+          >
           <form onSubmit={handleUpload} className="flex-1 flex flex-col h-full w-full">
             <div className="mb-8 space-y-2 relative z-20">
               <label className="text-xs font-bold tracking-widest uppercase text-slate-400">Target Patient Profile</label>
@@ -190,6 +191,7 @@ export default function UploadScan() {
             </button>
           </form>
         </motion.div>
+        )}
 
         {/* Prediction Panel */}
         <AnimatePresence mode="wait">
@@ -202,12 +204,20 @@ export default function UploadScan() {
                 <BrainCircuit size={160} />
               </div>
               <div className="flex items-center justify-between mb-6 md:mb-8 border-b border-white/10 pb-4 md:pb-6 relative z-10 w-full">
-                <div className="w-full">
+                <div className="flex-1">
                   <h2 className="text-lg md:text-2xl font-black text-white flex items-center gap-2 md:gap-3 tracking-wide drop-shadow-md flex-wrap">
                     <BrainCircuit className="text-purple-400 shrink-0" size={24} />
                     <span>Neural Diagnostic Pipeline</span>
                   </h2>
                 </div>
+                {prediction && (
+                  <button 
+                    onClick={() => { setPrediction(null); setScanData(null); setFile(null); setPreview(null); setViewMode('heatmap'); }}
+                    className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-[10px] md:text-xs font-bold uppercase tracking-widest transition-all shadow shadow-black/20 shrink-0"
+                  >
+                    New Upload
+                  </button>
+                )}
               </div>
 
               {/* Ready State */}
@@ -288,45 +298,95 @@ export default function UploadScan() {
                     );
                   })()}
 
-                  {/* Heatmap Toggle & Display */}
-                  <div className="mt-6 w-full relative z-10">
-                    <div className="flex items-center justify-between mb-3 px-1">
-                      <p className="text-xs font-bold text-slate-300 tracking-[0.1em] uppercase flex items-center gap-2">
-                        <BrainCircuit size={16} className="text-primary-400" />
-                        Clinical Workstation View
-                      </p>
-                      <div className="flex bg-[#050505] rounded border border-white/5 shadow-inner p-1">
+                  {/* Dynamic Viewer Based on Screenshot */}
+                  <div className="mt-8 w-full relative z-10 space-y-4">
+                    
+                    {/* Perspective Header Toolbar */}
+                    <div className="bg-[#242b38]/60 p-2.5 sm:p-3 md:p-4 rounded-[1.25rem] border border-white/5 shadow-2xl flex flex-col xl:flex-row xl:items-center justify-between gap-4 w-full">
+                      <div className="flex items-center gap-2.5 md:gap-3 px-2">
+                        <BrainCircuit className="text-primary-400 opacity-80" size={24} strokeWidth={1.5} />
+                        <h3 className="font-bold text-white tracking-wide text-sm md:text-base">Neural TriModel Perspective</h3>
+                      </div>
+                      
+                      <div className="flex overflow-x-auto bg-[#12161f] rounded-xl p-1.5 border border-white/5 shadow-inner items-center flex-nowrap shrink-0 snap-x hide-scrollbar">
                         <button
-                          onClick={() => setShowHeatmap(true)}
-                          className={`px-4 py-1.5 rounded text-[10px] uppercase tracking-widest font-bold transition-all flex items-center gap-1.5 ${showHeatmap ? 'bg-primary-600 text-white shadow-md' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}
+                          onClick={() => setViewMode('heatmap')}
+                          className={`snap-start px-4 md:px-5 py-2 md:py-2.5 text-[10px] md:text-xs font-bold rounded-lg whitespace-nowrap transition-all flex items-center gap-2 ${viewMode === 'heatmap' ? 'bg-primary-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.5)]' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
                         >
-                          <Eye size={12} /> Grad-CAM
+                          <Activity size={14} /> Grad-CAM Heatmap Focus
                         </button>
                         <button
-                          onClick={() => setShowHeatmap(false)}
-                          className={`px-4 py-1.5 rounded text-[10px] uppercase tracking-widest font-bold transition-all flex items-center gap-1.5 ${!showHeatmap ? 'bg-slate-700 text-white shadow-md' : 'text-slate-500 hover:text-white hover:bg-white/5'}`}
+                          onClick={() => setViewMode('baseline')}
+                          className={`snap-start px-4 md:px-5 py-2 md:py-2.5 text-[10px] md:text-xs font-bold rounded-lg whitespace-nowrap transition-all flex items-center gap-2 ${viewMode === 'baseline' ? 'bg-[#242b38] text-white shadow-md border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
                         >
-                          <EyeOff size={12} /> Baseline
+                          <ImageIcon size={14} /> Baseline Original
+                        </button>
+                        <button
+                          onClick={() => setViewMode('compare')}
+                          className={`snap-start px-4 md:px-5 py-2 md:py-2.5 text-[10px] md:text-xs font-bold rounded-lg whitespace-nowrap transition-all flex items-center gap-2 ${viewMode === 'compare' ? 'bg-[#242b38] text-white shadow-md border border-white/10' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+                        >
+                          <Columns size={14} /> Side-by-Side Compare
                         </button>
                       </div>
                     </div>
 
-                    <div className="bg-[#1a1a1a] p-1 sm:p-1.5 rounded-2xl sm:rounded-[1.25rem] border border-[#333] shadow-2xl w-full">
-                      <div className="relative flex flex-col bg-black rounded-xl overflow-hidden w-full aspect-square sm:aspect-[4/3] md:h-[400px] border border-[#222]">
-                        <div className="absolute top-2 sm:top-3 right-1/2 transform translate-x-1/2 text-[8px] sm:text-[10px] font-bold text-primary-400 uppercase tracking-widest z-20 bg-black/80 px-2 sm:px-3 py-1 rounded border border-primary-500/30 whitespace-nowrap hidden sm:block">
-                          {showHeatmap ? 'AI Diagnostic Heatmap' : 'Target Baseline View'}
-                        </div>
-                        <div className="w-full h-full bg-black flex justify-center items-center relative">
-                          <DicomOverlayTopLeft />
-                          <DicomOverlayTopRight />
-                          <DicomOverlayBottomLeft />
-                          <DicomOverlayBottomRight />
-                          <img
-                            src={showHeatmap ? prediction.heatmapUrl : scanData.imageUrl}
-                            alt="Diagnostic MRI"
-                            className="w-full h-full object-contain pointer-events-none p-4"
-                          />
-                        </div>
+                    {/* Dominant Viewport */}
+                    <div className="bg-[#242b38]/40 p-4 sm:p-5 md:p-6 lg:p-8 rounded-[1.5rem] md:rounded-[2rem] border border-white/5 shadow-2xl w-full">
+                      <div className="flex items-center gap-2 mb-4 md:mb-6">
+                        <Activity className="text-primary-400 animate-pulse w-3 h-3 md:w-4 md:h-4" />
+                        <h4 className="text-[10px] md:text-xs font-black tracking-[0.15em] text-primary-400 uppercase drop-shadow">
+                          {viewMode === 'heatmap' ? 'DOMINANT VIEW: GRAD-CAM NETWORK HEATMAP' : 
+                           viewMode === 'baseline' ? 'TARGET DIAGNOSTIC BASELINE ORTHOGONAL' : 
+                           'CLINICAL WORKSTATION COMPARATIVE VIEW'}
+                        </h4>
+                      </div>
+
+                      <div className={`grid gap-4 sm:gap-6 w-full ${viewMode === 'compare' ? 'grid-cols-1 xl:grid-cols-2' : 'grid-cols-1'}`}>
+                        
+                        {/* Baseline Image */}
+                        {(viewMode === 'baseline' || viewMode === 'compare') && (
+                          <div className={`relative flex flex-col bg-black rounded-2xl overflow-hidden w-full border border-white/5 shadow-inner ${viewMode === 'compare' ? 'aspect-square md:aspect-square lg:aspect-[4/3]' : 'aspect-square sm:aspect-[4/3] max-h-[600px] mx-auto'}`}>
+                            {viewMode === 'compare' && (
+                              <div className="absolute top-3 right-1/2 transform translate-x-1/2 text-[9px] font-bold text-slate-400 uppercase tracking-widest z-20 bg-black/80 px-4 py-1.5 rounded-full border border-white/10 whitespace-nowrap backdrop-blur-md">
+                                Target Baseline View
+                              </div>
+                            )}
+                            <div className="w-full h-full bg-[#050505] flex justify-center items-center relative">
+                              <DicomOverlayTopLeft />
+                              <DicomOverlayTopRight />
+                              <DicomOverlayBottomLeft />
+                              <DicomOverlayBottomRight />
+                              <img
+                                src={scanData.imageUrl}
+                                alt="Baseline MRI"
+                                className={`w-full h-full object-contain pointer-events-none p-2 md:p-4 opacity-90 ${viewMode !== 'compare' ? 'scale-[1.02]' : ''}`}
+                              />
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Grad-CAM Heatmap Image */}
+                        {(viewMode === 'heatmap' || viewMode === 'compare') && (
+                          <div className={`relative flex flex-col bg-black rounded-2xl overflow-hidden w-full border border-white/5 shadow-inner ${viewMode === 'compare' ? 'aspect-square md:aspect-square lg:aspect-[4/3]' : 'aspect-square sm:aspect-[4/3] max-h-[600px] mx-auto'}`}>
+                            {viewMode === 'compare' && (
+                              <div className="absolute top-3 right-1/2 transform translate-x-1/2 text-[9px] font-bold text-primary-400 uppercase tracking-widest z-20 bg-black/80 px-4 py-1.5 rounded-full border border-primary-500/30 whitespace-nowrap backdrop-blur-md">
+                                AI Diagnostic Heatmap
+                              </div>
+                            )}
+                            <div className="w-full h-full bg-[#050505] flex justify-center items-center relative">
+                              <DicomOverlayTopLeft />
+                              <DicomOverlayTopRight />
+                              <DicomOverlayBottomLeft />
+                              <DicomOverlayBottomRight />
+                              <img
+                                src={prediction.heatmapUrl}
+                                alt="Diagnostic Heatmap"
+                                className={`w-full h-full object-contain pointer-events-none p-2 md:p-4 opacity-100 ${viewMode !== 'compare' ? 'scale-[1.02]' : ''}`}
+                              />
+                            </div>
+                          </div>
+                        )}
+
                       </div>
                     </div>
                   </div>
