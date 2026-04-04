@@ -81,15 +81,9 @@ def predict_image(file):
     image = Image.open(file.file).convert("RGB")
     img = transform(image).unsqueeze(0).to(device)
 
-<<<<<<< HEAD
     # Forward pass
     with torch.no_grad():
         output = model_instance(img)
-=======
-    # ---- FORWARD PASS ----
-    with torch.no_grad():
-        output = model(img)
->>>>>>> 196f390 (Updated files)
         probs = torch.softmax(output, dim=1)
         pred = torch.argmax(probs, dim=1).item()
 

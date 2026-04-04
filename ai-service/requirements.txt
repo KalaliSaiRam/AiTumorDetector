@@ -1,21 +1,30 @@
-<<<<<<< HEAD
-gdown
-fastapi==0.110.0
-uvicorn==0.27.1
-python-multipart==0.0.9
-torch==2.2.1
-torchvision==0.17.1
-timm==0.9.16
-Pillow==10.2.0
-numpy==1.26.4
-opencv-python-headless==4.9.0.80
-=======
+# <<<<<<< HEAD
+# gdown
+# fastapi==0.110.0
+# uvicorn==0.27.1
+# python-multipart==0.0.9
+# torch==2.2.1
+# torchvision==0.17.1
+# timm==0.9.16
+# Pillow==10.2.0
+# numpy==1.26.4
+# opencv-python-headless==4.9.0.80
+# =======
+# torch
+# torchvision
+# timm
+# opencv-python-headless
+# Pillow
+# numpy
+# gdown
+# gradio
+# >>>>>>> 196f390 (Updated files)
+
 torch
 torchvision
-timm
-opencv-python-headless
-Pillow
-numpy
+timm==0.9.16
+opencv-python-headless==4.9.0.80
+Pillow>=10.3.0
+numpy==1.26.4
 gdown
-gradio
->>>>>>> 196f390 (Updated files)
+gradio==6.10.0
