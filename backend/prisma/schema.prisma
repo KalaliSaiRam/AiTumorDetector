@@ -1,0 +1,146 @@
+// This is your Prisma schema file
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────
+
+enum Role {
+  ADMIN
+  DOCTOR
+  RECEPTIONIST
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+// ─── User ─────────────────────────────────────────────────
+
+model User {
+  id         String   @id @default(cuid())
+  name       String
+  email      String   @unique
+  password   String
+  role       Role     @default(DOCTOR)
+  isVerified Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  patientsCreated Patient[]     @relation("CreatedByUser")
+  reports         Report[]      @relation("DoctorReports")
+  appointments    Appointment[] @relation("DoctorAppointments")
+
+  @@map("users")
+}
+
+// ─── Patient ──────────────────────────────────────────────
+
+model Patient {
+  id        String   @id @default(cuid())
+  name      String
+  age       Int
+  gender    Gender
+  contact   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // FK
+  createdById String
+  createdBy   User   @relation("CreatedByUser", fields: [createdById], references: [id])
+
+  // Relations
+  scans        MRI_Scan[]
+  reports      Report[]
+  appointments Appointment[]
+
+  @@map("patients")
+}
+
+// ─── MRI Scan ─────────────────────────────────────────────
+
+model MRI_Scan {
+  id         String   @id @default(cuid())
+  imageUrl   String
+  uploadedAt DateTime @default(now())
+
+  // FK
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  // Relations
+  prediction Prediction?
+
+  @@map("mri_scans")
+}
+
+// ─── Prediction ───────────────────────────────────────────
+
+model Prediction {
+  id             String   @id @default(cuid())
+  predictedClass String
+  confidence     Float
+  heatmapUrl     String
+  topPredictions Json
+  createdAt      DateTime @default(now())
+
+  // FK (one-to-one with scan)
+  scanId String   @unique
+  scan   MRI_Scan @relation(fields: [scanId], references: [id], onDelete: Cascade)
+
+  @@map("predictions")
+}
+
+// ─── Report ───────────────────────────────────────────────
+
+model Report {
+  id        String   @id @default(cuid())
+  diagnosis String
+  aiSummary String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // FKs
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  doctorId String
+  doctor   User   @relation("DoctorReports", fields: [doctorId], references: [id])
+
+  @@map("reports")
+}
+
+// ─── Appointment ──────────────────────────────────────────
+
+model Appointment {
+  id        String            @id @default(cuid())
+  date      DateTime
+  status    AppointmentStatus @default(SCHEDULED)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  // FKs
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  doctorId String
+  doctor   User   @relation("DoctorAppointments", fields: [doctorId], references: [id])
+
+  @@map("appointments")
+}
